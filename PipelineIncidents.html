@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8' />
+        <title>Pipeline Incidents in BC, 2008-2018</title>
+        <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+        <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.49.0/mapbox-gl.js'></script>
+        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.49.0/mapbox-gl.css' rel='stylesheet' />
+        
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      h2,
+      h3 {
+        margin: 10px;
+        font-size: 1.2em;
+      }
+
+      p {
+        font-size: 0.85em;
+        margin: 10px;
+        text-align: left;
+      }
+
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+      
+      .map-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 20;
+        background: rgba(255, 255, 255, 0.6);
+        margin-right: 20px;
+        font-family: Arial, sans-serif;
+        overflow: auto;
+        border-radius: 3px;
+      }
+
+      .legend-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 20;
+        background: rgba(255, 255, 255, 0.6);
+        margin-right: 20px;
+        font-family: Arial, sans-serif;
+        overflow: auto;
+        border-radius: 3px;
+      }
+      
+      #Title {
+        top: 0;
+        height: 200px;
+        margin-top: 20px;
+        width: 270px;
+        color: #000000;
+      }
+      
+      #legend {
+        padding: 10px;
+        line-height: 18px;
+        height: 210px;
+        margin-bottom: 40px;
+        width: 180px;
+        font: 10.5px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+      }
+
+      .legend-key {
+        display: inline-block;
+        border-radius: 20%;
+        width: 10px;
+        height: 10px;
+        margin-right: 5px;
+      }
+     
+      #legend h4 {
+        margin: 10px;
+      }
+    
+    </style>
+</head>
+
+<body>
+ 
+<div id='map'></div>
+<div class='map-overlay' id='Title'><h2>BC Pipeline Incidents</h2><div id='pd'><p>2008-2018</p><p>Click the box below to select a layer! </p></div></div>
+<div class='legend-overlay' id='legend'> <h4>Incident Type</h4></div>
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoiZW1pbHkzMTE3IiwiYSI6ImNqcXlydHpiaDA2dTMzd3BiN252N3ppN3MifQ.ahGQViXshBLhxGafMmmaug';
+
+var bounds = [
+        [-152.419556, 45.498978],
+        [-109.379586,60.245575]
+    ];
+
+const map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/emily3117/cjrkyofzia70c2tmqjlegvj21',
+  center: [-126.442266, 54.666305], // starting position [lng, lat]
+  zoom: 4, // starting zoom
+  maxBounds: bounds
+});
+
+map.on('load', function() {
+
+//legend
+  var layers = ['Fire', 'Explosion', 'Fatality', 'Serious Injury', 'Release of Substance', 'Operation Beyond Design', 'Adverse Environmental Effects', 'Others'];
+  var colors = ['rgba(251, 176, 59,0.85)', 'rgba(190,186,218,0.85)', 'rgba(255,255,179, 0.85)', 'rgba(141, 211, 199, 0.85)', 'rgba(229, 94, 94, 0.85)', 'rgba(55, 126, 185, 0.85)', 'rgba(179,222,105, 0.85)','rgba(100,100,100, 0.80)'];
+
+  for (i = 0; i < layers.length; i++) {
+    var layer = layers[i];
+    var color = colors[i];
+    var item = document.createElement('div');
+    var key = document.createElement('span');
+    key.className = 'legend-key';
+    key.style.backgroundColor = color;
+
+    var value = document.createElement('span');
+    value.innerHTML = layer;
+    item.appendChild(key);
+    item.appendChild(value);
+    legend.appendChild(item);
+  }
+
+//pipelines
+  map.addLayer({
+      id: 'Pipelines',
+      type: 'line',
+      source: {
+        type: 'vector',
+        url: 'mapbox://emily3117.cjruazemp44yu2smvc1g1bywz-359lr'
+      },
+      'source-layer': 'Pipelines',
+      paint:{
+        'line-color':'rgb(250,250,250)',
+        'line-opacity':0.75,
+        'line-width':3
+      }
+      }),
+
+//incidents
+    map.addLayer({
+      id: 'Incidents', //layer name here
+      type: 'circle',
+      source: {
+        type: 'vector',
+        url: 'mapbox://emily3117.cjrtp9k2y017t2xqmt48i3k4y-8o5tw'
+      },
+      'source-layer': 'Incidents',
+      paint:{
+  
+        'circle-radius':{
+            'base': 6,
+            'stops': [[4, 6], [13, 60]]
+        },
+
+            'circle-opacity':0.75,
+
+            'circle-color':[
+            'match',
+            ['get', 'IncidentTypes'],
+            'Fire', '#fbb03b',
+            'Explosion', '#bebada',
+            'Release of Substance', '#e55e5e',
+            'Operation Beyond Design Limits', '#377eb9',
+            'Fatality', '#ffffb3',
+            'Serious Injury (NEB or TSB)', '#8dd3c7',
+            'Serious Injury (NEB or TSB), Release of Substance', '#8dd3c7',
+            'Serious Injury (NEB or TSB), Fire, Release of Substance', '#8dd3c7',
+            'Adverse Environmental Effects', '#b1de68',
+            /* other */ '#646464'
+        ],
+      }
+    });
+    });
+
+//popup windows
+    map.on('click', function(e) {
+      var features = map.queryRenderedFeatures(e.point, {
+        layers: ['Incidents'] // replace this with the name of the layer
+      });
+
+      if (!features.length) {
+        return;
+      }
+
+      var feature = features[0];
+
+      var popup = new mapboxgl.Popup({ offset: [0, 0] })
+        .setLngLat(feature.geometry.coordinates)
+        .setHTML('<h3>' + 'Pipeline Company' + '</h3><h4>' + feature.properties.Company + 
+        '</h4><p>' + 'Pipeline Name: ' + '</p><p>'+ feature.properties.PipelineName + 
+        '</p><p>'+ "Year: " + '</p><p>'+ feature.properties.Year + '</p>')
+        .setLngLat(feature.geometry.coordinates)
+        .addTo(map);
+    });
+
+    //zoom and rotation controls
+    map.addControl(new mapboxgl.NavigationControl({ position: 'top-left' }));
+ 
+</script>
+
+<style>
+      .mapboxgl-popup-content {
+        font: 400 15px/22px 'Source Sans Pro', 'Helvetica Neue', Sans-serif;
+        padding: 0;
+        width: 300px;
+      }
+
+      .mapboxgl-popup-content-wrapper {
+        padding: 1%;
+      }
+
+      .mapboxgl-popup-content h3 {
+        background: #807b7b;
+        color: #fff;
+        margin: 0;
+        display: block;
+        padding: 10px;
+        border-radius: 3px 3px 0 0;
+        font-weight: 700;
+        margin-top: -15px;
+      }
+
+      .mapboxgl-popup-content h4 {
+        margin: 0;
+        display: block;
+        padding: 10px;
+        font-weight: 400;
+      }
+
+      .mapboxgl-popup-anchor-top > .mapboxgl-popup-content {
+        margin-top: 15px;
+      }
+
+      .mapboxgl-popup-anchor-top > .mapboxgl-popup-tip {
+        border-bottom-color: #807b7b;
+      }   
+</style>
+
+<nav id="menu"></nav>
+<script>
+    // layer filter 
+    var toggleableLayerIds = [ 'Incidents', 'Pipelines' ];
+
+    for (var i = 0; i < toggleableLayerIds.length; i++) {
+    var id = toggleableLayerIds[i];
+      
+    var link = document.createElement('a');
+    link.href = '#';
+    link.className = 'active';
+    link.textContent = id;
+      
+    link.onclick = function (e) {
+    var clickedLayer = this.textContent;
+    e.preventDefault();
+    e.stopPropagation();
+      
+    var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+      
+    if (visibility === 'visible') {
+    map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+    this.className = '';
+    } else {
+    this.className = 'active';
+    map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+    }
+    };
+      
+    var layers = document.getElementById('menu');
+    layers.appendChild(link);
+    }
+
+</script>
+
+<style>
+    #menu {
+    background: rgba(255, 255, 255, 0.6);
+    position: absolute;
+    z-index: 1;
+    top: 130px;
+    left: 10px;
+    border-radius: 3px;
+    width: 120px;
+    border: 1px solid rgba(0,0,0,0.4);
+    font-family: 'Open Sans', sans-serif;
+    }
+    
+    #menu a {
+    font-size: 13px;
+    color: #404040;
+    display: block;
+    margin: 0;
+    padding: 0;
+    padding: 10px;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0,0,0,0.25);
+    text-align: center;
+    }
+    
+    #menu a:last-child {
+    border: none;
+    }
+    
+    #menu a:hover {
+    background-color: rgba(255, 255, 255, 0.6);
+    color: #404040;
+    }
+    
+    #menu a.active {
+    background-color: rgba(255, 255, 255, 0.6);
+    color: #585555;
+    }
+    
+    #menu a.active:hover {
+    background: #a8a8a8;
+    }
+    </style>
+</body>
+</html>
