@@ -196,8 +196,8 @@ map.on('load', function() {
         .setLngLat(feature.geometry.coordinates)
         .setHTML('<h3>' + 'Incident Information' + 
         '</h3><h4>' + 'Pipeline Company: ' + '</h4><p>' + feature.properties.Company + '</p>'+ 
-        '</h4><p>' + 'Pipeline Name: ' + '</p><p>'+ feature.properties.PipelineName + 
-        '</p><p>'+ "Year: " + '</p><p>'+ feature.properties.Year + '</p>')
+        '<h4>' + 'Pipeline Name: ' + '</h4><p>'+ feature.properties.PipelineName + 
+        '</p><h4>'+ "Year: " + '</h4><p>'+ feature.properties.Year + '</p>')
         .setLngLat(feature.geometry.coordinates)
         .addTo(map);
     });
