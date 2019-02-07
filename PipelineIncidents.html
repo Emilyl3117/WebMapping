@@ -194,7 +194,8 @@ map.on('load', function() {
 
       var popup = new mapboxgl.Popup({ offset: [0, 0] })
         .setLngLat(feature.geometry.coordinates)
-        .setHTML('<h3>' + 'Pipeline Company' + '</h3><h4>' + feature.properties.Company + 
+        .setHTML('<h3>' + 'Incident Information' + 
+        '</h3><h4>' + 'Pipeline Company: ' + '</h4><p>' + feature.properties.Company + '</p>'+ 
         '</h4><p>' + 'Pipeline Name: ' + '</p><p>'+ feature.properties.PipelineName + 
         '</p><p>'+ "Year: " + '</p><p>'+ feature.properties.Year + '</p>')
         .setLngLat(feature.geometry.coordinates)
