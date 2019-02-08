@@ -12,7 +12,7 @@ I recognized that there are several limitations and room for improvement for thi
 
 
 
-![alt text]https://raw.githubusercontent.com/Emilyl3117/WebMapping/master/layerSwticher_1.png)
+![Emily Screenshot](MapboxStudio.png)
 Figure 1. Layer switcher to show and hide layers.
 
 
